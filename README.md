@@ -20,7 +20,7 @@ This is a work in progress. Current stage: single-race strategy optimization com
 - [x] Add safety car probability and Monte Carlo simulation
 - [x] Run strategy optimization across a grid of strategies for one race (Bahrain)
 - [x] Validate model output against real Bahrain 2024 race results
-- [ ] Extend strategy optimization across multiple races
+- [x] Extend strategy optimization across multiple races
 - [ ] Add a visualization section (degradation plots per race, strategy comparison charts)
 - [ ] Interactive dashboard (Streamlit)
 
@@ -31,7 +31,9 @@ Race data is pulled using [FastF1](https://github.com/theOehrly/Fast-F1), a Pyth
 
 
 ## Validation
- 
+
+### Bahrain 2024
+
 Max Verstappen's race-winning strategy at the 2024 Bahrain GP was a 2-stop, soft-hard-soft, with stints of 17, 20, and 20 laps (actual race time: 91.75 minutes).
  
 Simulating this exact strategy through the model and comparing it against the full grid of 42 tested strategies:
@@ -40,6 +42,21 @@ Simulating this exact strategy through the model and comparing it against the fu
 - **Absolute time:** the model predicted a mean finishing time of 94.24 minutes, about 2.5 minutes slower than the actual 91.75 minutes. This gap is expected: the degradation model is fit on all drivers' laps pooled together, not Verstappen's specifically, and the Monte Carlo safety car simulation reflects an average across 1,000 simulated races rather than the specific (lighter) safety car conditions of the real one.
 
 Overall, the model's relative judgment matches reality closely, while its absolute time prediction carries a known, explainable offset rather than being arbitrarily off.
+
+
+### Baku 2024
+
+Oscar Piastri's race-winning strategy was a 1-stop, medium-hard, with stints of 15 and 36 laps (actual race time: 92.97 minutes). Simulating this against the Baku strategy grid:
+ 
+- **Ranking:** the real strategy placed 10th, behind several strategies favoring a longer medium stint (the model's top pick used a 29-lap medium stint versus Piastri's 15). This gap is explainable: Piastri's own post-race comments describe pushing hard and overheating his tires early in traffic to build a lead, prompting an earlier stop than pure tire-age degradation would suggest, a driving and race-context factor the model has no way to represent, since it only knows tire age, not how hard a specific driver pushed or whether they were in another car's dirty air.
+- **Absolute time:** the model predicted a mean finishing time of 94.91 minutes, about 1.9 minutes slower than the actual 92.97 minutes, a similar-sized gap to Bahrain's, for the same underlying reasons.
+
+
+### Monaco 2024
+
+**Monaco 2024 was excluded from validation.** The race was red-flagged on lap 1 after a multi-car crash, and tire changes during that stoppage were free (no pit lane time loss), unlike every pit stop this model simulates. Comparing the model's prediction against this specific race would not be a meaningful test, since the real result was shaped by an event the model has no way to represent, not by strategy quality.
+ 
+Overall, the model's relative judgment (which strategy is best) matches reality closely at Bahrain and reasonably well at Baku, with the Baku gap traceable to a specific, identifiable driver behavior rather than an unexplained miss. Its absolute time predictions carry a consistent, explainable offset (driven by field-average pace and average simulated safety car conditions) rather than being arbitrarily off.
 
 
 ## Project structure

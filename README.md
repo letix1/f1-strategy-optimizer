@@ -21,7 +21,8 @@ This is a work in progress. Current stage: single-race strategy optimization com
 - [x] Run strategy optimization across a grid of strategies for one race (Bahrain)
 - [x] Validate model output against real Bahrain 2024 race results
 - [ ] Extend strategy optimization across multiple races
-- [ ] Optional: interactive dashboard (Streamlit)
+- [ ] Add a visualization section (degradation plots per race, strategy comparison charts)
+- [ ] Interactive dashboard (Streamlit)
 
 
 ## Data source

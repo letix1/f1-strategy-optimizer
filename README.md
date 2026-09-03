@@ -5,7 +5,7 @@ A project to model tire degradation and simulate race strategy for Formula 1, us
 
 ## Motivation
 
-Race strategy in F1 is a set of decisios made under uncertainty: teams choose pit stop timing and tire compounds based on degradation models, safety car probability, and track position, often with incomplete information in real time. This project builds a simplified version of that decision process, from raw timing data through to a Monte Carlo simulation of strategy outcomes.
+Race strategy in F1 is a set of decisions made under uncertainty: teams choose pit stop timing and tire compounds based on degradation models, safety car probability, and track position, often with incomplete information in real time. This project builds a simplified version of that decision process, from raw timing data through to a Monte Carlo simulation of strategy outcomes.
 
 
 ## Project status
@@ -19,7 +19,7 @@ This is a work in progress. Current stage: single-race strategy optimization com
 - [x] Build lap-by-lap race simulation engine
 - [x] Add safety car probability and Monte Carlo simulation
 - [x] Run strategy optimization across a grid of strategies for one race (Bahrain)
-- [ ] Validate model output against real Bahrain 2024 race results
+- [x] Validate model output against real Bahrain 2024 race results
 - [ ] Extend strategy optimization across multiple races
 - [ ] Optional: interactive dashboard (Streamlit)
 
@@ -29,16 +29,32 @@ This is a work in progress. Current stage: single-race strategy optimization com
 Race data is pulled using [FastF1](https://github.com/theOehrly/Fast-F1), a Python library that provides access to official F1 timing and telemetry data. Data includes lap times, tire compound and age, pit stop timing, and track status per lap.
 
 
+## Validation
+ 
+Max Verstappen's race-winning strategy at the 2024 Bahrain GP was a 2-stop, soft-hard-soft, with stints of 17, 20, and 20 laps (actual race time: 91.75 minutes).
+ 
+Simulating this exact strategy through the model and comparing it against the full grid of 42 tested strategies:
+ 
+- **Ranking:** the real strategy placed 2nd out of 42, within a fraction of a minute of the model's own top pick. The model independently identified the actual race-winning strategy as near-optimal, without being told the outcome in advance.
+- **Absolute time:** the model predicted a mean finishing time of 94.24 minutes, about 2.5 minutes slower than the actual 91.75 minutes. This gap is expected: the degradation model is fit on all drivers' laps pooled together, not Verstappen's specifically, and the Monte Carlo safety car simulation reflects an average across 1,000 simulated races rather than the specific (lighter) safety car conditions of the real one.
+
+Overall, the model's relative judgment matches reality closely, while its absolute time prediction carries a known, explainable offset rather than being arbitrarily off.
+
+
 ## Project structure
 
 ```
 f1-strategy-optimizer/
-  data/              raw and cleaned lap data (CSV)
-  notebooks/         exploratory analysis
-  src/               model and simulation code
-  cache/             FastF1 local cache (not tracked in Git)
-  pull_race.py       script to pull and save race data
-  test_setup.py      environment check script
+  data/                        raw and cleaned lap data (CSV)
+  cache/                       FastF1 local cache (not tracked in Git)
+  test_setup.py                environment check script
+  pull_race.py                 pulls and saves raw race data
+  inspect_data.py              inspects raw data and produces the cleaned lap dataset
+  degradation_model.py         fits the tire degradation model (tire wear + fuel effect) and plots it
+  simulate_race.py             deterministic lap-by-lap race simulator
+  optimize_strategy.py         Monte Carlo simulation with safety car randomness, strategy grid search
+  validate_model.py            validates model output against the real Bahrain 2024 result
+  degradation_scatter.png      lap time vs tyre age plot, output of degradation_model.py
   requirements.txt
   README.md
 ```

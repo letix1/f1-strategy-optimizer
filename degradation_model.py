@@ -49,4 +49,5 @@ for compound in laps["Compound"].unique():
         "fuel_slope": fuel_slope,
         "intercept":  intercept,
     }
+    
     print(f"{compound}: tyre wear = {tyre_slope:.3f} s/lap, fuel effect = {fuel_slope:.3f} s/lap, base = {intercept:.2f}s")

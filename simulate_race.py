@@ -8,21 +8,20 @@ PIT_STOP_LOSS = 22.0
 
 # Degradation model results
 DEGRADATION = {
-    "SOFT": {"slope": -0.050, "intercept": 97.74},
-    "HARD": {"slope":  0.022, "intercept": 96.50},
+    "SOFT": {"tyre_slope": 0.077, "fuel_slope": -0.071, "intercept": 98.13},
+    "HARD": {"tyre_slope": 0.105, "fuel_slope": -0.069, "intercept": 97.83},
 }
 
-def predict_lap_time(compound, tyre_age):
+def predict_lap_time(compound, tyre_age, lap_number):
     model = DEGRADATION[compound]
     
-    return model["intercept"] + model["slope"] * tyre_age
-
+    return (
+          model["intercept"]
+        + model["tyre_slope"] * tyre_age
+        + model["fuel_slope"] * lap_number
+    )
 
 def simulate_strategy(stints):
-    """
-    stints: list of dicts, e.g.
-    [{"compound": str, "laps": int}, {"compound": str, "laps": int}]
-    """
     total_time = 0.0
     lap_count  = 0
 
@@ -31,11 +30,10 @@ def simulate_strategy(stints):
         stint_laps = stint["laps"]
 
         for tyre_age in range(1, stint_laps + 1):
-            lap_time = predict_lap_time(compound, tyre_age)
+            lap_count += 1  # this is now also the overall race lap number
+            lap_time = predict_lap_time(compound, tyre_age, lap_count)
             total_time += lap_time
-            lap_count += 1
 
-        # add pit stop loss after every stint except the last
         if i < len(stints) - 1:
             total_time += PIT_STOP_LOSS
 

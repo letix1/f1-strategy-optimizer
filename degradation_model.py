@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy.polynomial import polynomial as P
+from sklearn.linear_model import LinearRegression
 
 laps = pd.read_csv("data/bahrain_2024_laps_clean.csv")
 
@@ -27,16 +28,25 @@ plt.legend()
 plt.savefig("degradation_scatter.png")
 print("Saved plot to degradation_scatter.png")
 
-# Fit a simple linear degradation rate per compound
+
 degradation_rates = {}
 
 for compound in laps["Compound"].unique():
     subset = laps[laps["Compound"] == compound]
-    x = subset["TyreLife"].values
+
+    X = subset[["TyreLife", "LapNumber"]].values
     y = subset["LapTimeSeconds"].values
 
-    coeffs = np.polyfit(x, y, deg=1)
-    slope, intercept = coeffs[0], coeffs[1] # How many seconds per lap of tire age the car loses.
+    model = LinearRegression()
+    model.fit(X, y)
 
-    degradation_rates[compound] = {"slope": slope, "intercept": intercept}
-    print(f"{compound}: {slope:.3f} seconds per lap of tyre age, base lap time {intercept:.2f}s")
+    tyre_slope = model.coef_[0]
+    fuel_slope = model.coef_[1]
+    intercept  = model.intercept_
+
+    degradation_rates[compound] = {
+        "tyre_slope": tyre_slope,
+        "fuel_slope": fuel_slope,
+        "intercept":  intercept,
+    }
+    print(f"{compound}: tyre wear = {tyre_slope:.3f} s/lap, fuel effect = {fuel_slope:.3f} s/lap, base = {intercept:.2f}s")

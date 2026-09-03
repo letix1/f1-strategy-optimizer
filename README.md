@@ -46,6 +46,11 @@ python pull_race.py
 Pulls lap data for the configured race and saves it to `data/`.
 
 
+## Limitations
+ 
+The tire degradation model currently fits lap time against tire age alone, without accounting for fuel load. In a real race, cars get lighter (and faster) as fuel burns off over a stint, and this effect is strongest early in the race when the tank is fullest. Since fresh tires are also disproportionately used early in a stint, the fuel effect and the tire wear effect are currently mixed together in the fitted slope. Separating the two properly would require a lap-by-lap fuel estimate (for example, using `LapNumber` as a proxy for fuel remaining) added as a second variable in the regression. This is a planned improvement, not yet implemented.
+
+
 ## Author
 
 Letizia Bianchi ([LinkedIn](https://linkedin.com/in/letizia-ida-bianchi))

@@ -37,7 +37,7 @@ def plot_degradation(race):
     plt.ylabel("Lap Time (seconds)")
     plt.title(f"{race}: Lap Time vs Tyre Age, with Fitted Degradation")
     plt.legend()
-    plt.savefig(f"degradation_fit_{race}.png")
+    plt.savefig(f"images/degradation_fit_{race}.png")
     plt.close()
     print(f"Saved degradation_fit_{race}.png")
     
@@ -81,7 +81,7 @@ def plot_strategy_comparison(race, compounds):
     plt.xlabel("Mean Finishing Time (minutes)")
     plt.title(f"{race}: Top 10 Strategies (error bars = 1 std)")
     plt.tight_layout()
-    plt.savefig(f"strategy_comparison_{race}.png")
+    plt.savefig(f"images/strategy_comparison_{race}.png")
     plt.close()
     print(f"Saved strategy_comparison_{race}.png")
         
@@ -104,7 +104,7 @@ def plot_validation(race, real_strategy, actual_time_minutes, driver_name):
     plt.title(f"{race}: Model's Simulated Outcomes vs. Actual Result")
     plt.legend()
     plt.tight_layout()
-    plt.savefig(f"validation_{race}.png")
+    plt.savefig(f"images/validation_{race}.png")
     plt.close()
     
     print(f"Saved validation_{race}.png")

@@ -109,10 +109,8 @@ f1-strategy-optimizer/
   validate_model.py            validates model output against real Bahrain and Baku 2024 results
   visualize.py                 generates degradation, strategy comparison, and validation plots
   dashboard.py                 interactive Streamlit dashboard
-  degradation_scatter.png      lap time vs tyre age plot, output of degradation_model.py
-  degradation_fit_*.png        degradation model fit per race, output of visualize.py
-  strategy_comparison_*.png    top 10 strategies per race, output of visualize.py
-  validation_*.png             simulated outcome distribution vs actual result, output of visualize.py
+  images/                      generated plots: degradation_fit_*.png, strategy_comparison_*.png,
+                               validation_*.png (all output by visualize.py)
   requirements.txt
   README.md
 ```

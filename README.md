@@ -10,7 +10,7 @@ Race strategy in F1 is a set of decisions made under uncertainty: teams choose p
 
 ## Project status
  
-This is a work in progress. Current stage: single-race strategy optimization complete, moving to validation.
+This is a complete, working project. All planned features are implemented and validated.
  
 - [x] Environment setup (FastF1, pandas, numpy, matplotlib)
 - [x] Pull raw lap data for a first race (Bahrain 2024)
@@ -22,7 +22,7 @@ This is a work in progress. Current stage: single-race strategy optimization com
 - [x] Validate model output against real Bahrain 2024 race results
 - [x] Extend strategy optimization across multiple races
 - [x] Add a visualization section (degradation plots per race, strategy comparison charts)
-- [ ] Interactive dashboard (Streamlit)
+- [x] Interactive dashboard (Streamlit)
 
 
 ## Data source
@@ -85,6 +85,15 @@ The model's simulated distribution of outcomes for the real winning strategy, wi
 ![Baku validation](validation_baku_2024.png)
 
 
+## Dashboard
+ 
+An interactive Streamlit dashboard lets you pick a race, build a custom 1-stop or 2-stop strategy, and see simulated results compared against the model's top strategies for that race.
+ 
+```bash
+streamlit run dashboard.py
+```
+
+
 ## Project structure
 
 ```
@@ -97,8 +106,13 @@ f1-strategy-optimizer/
   degradation_model.py         fits the tire degradation model (tire wear + fuel effect) and plots it
   simulate_race.py             deterministic lap-by-lap race simulator
   optimize_strategy.py         Monte Carlo simulation with safety car randomness, strategy grid search
-  validate_model.py            validates model output against the real Bahrain 2024 result
+  validate_model.py            validates model output against real Bahrain and Baku 2024 results
+  visualize.py                 generates degradation, strategy comparison, and validation plots
+  dashboard.py                 interactive Streamlit dashboard
   degradation_scatter.png      lap time vs tyre age plot, output of degradation_model.py
+  degradation_fit_*.png        degradation model fit per race, output of visualize.py
+  strategy_comparison_*.png    top 10 strategies per race, output of visualize.py
+  validation_*.png             simulated outcome distribution vs actual result, output of visualize.py
   requirements.txt
   README.md
 ```

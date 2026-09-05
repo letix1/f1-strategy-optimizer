@@ -6,6 +6,9 @@ SC_CONFIG = {
     "baku_2024":    {"probability_per_lap": 0.020, "duration_laps": 4, "sc_lap_time": 145.0},
 }
 
+# Pitting during a safety car costs a lot less
+SC_PIT_LOSS_REDUCTION = 0.65  # 65% reduction to pit loss
+
 
 def simulate_strategy(stints, race, rng):
     from simulate_race import RACE_CONFIG, DEGRADATION_BY_RACE, predict_lap_time
@@ -31,11 +34,17 @@ def simulate_strategy(stints, race, rng):
             if sc_laps_remaining > 0:
                 total_time += sc["sc_lap_time"]
                 sc_laps_remaining -= 1
+            
             else:
                 total_time += predict_lap_time(degradation, compound, tyre_age, lap_count)
 
         if i < len(stints) - 1:
-            total_time += config["pit_stop_loss"]
+            pit_loss = config["pit_stop_loss"]
+            
+            if sc_laps_remaining > 0:
+                pit_loss *= (1 - SC_PIT_LOSS_REDUCTION)  # pitting during safety car
+            
+            total_time += pit_loss
 
     return total_time, lap_count
 

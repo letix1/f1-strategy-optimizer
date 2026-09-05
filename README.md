@@ -42,17 +42,15 @@ Max Verstappen's race-winning strategy at the 2024 Bahrain GP was a 2-stop, soft
 Simulating this exact strategy through the model and comparing it against the full grid of 42 tested strategies:
  
 - **Ranking:** the real strategy placed 2nd out of 42, within a fraction of a minute of the model's own top pick. The model independently identified the actual race-winning strategy as near-optimal, without being told the outcome in advance.
-- **Absolute time:** the model predicted a mean finishing time of 94.24 minutes, about 2.5 minutes slower than the actual 91.75 minutes. This gap is expected: the degradation model is fit on all drivers' laps pooled together, not Verstappen's specifically, and the Monte Carlo safety car simulation reflects an average across 1,000 simulated races rather than the specific (lighter) safety car conditions of the real one.
-
-Overall, the model's relative judgment matches reality closely, while its absolute time prediction carries a known, explainable offset rather than being arbitrarily off.
+- **Absolute time:** the model predicted a mean finishing time of 94.23 minutes, about 2.5 minutes slower than the actual 91.75 minutes. This gap is expected: the degradation model is fit on all drivers' laps pooled together, not Verstappen's specifically, and the Monte Carlo safety car simulation reflects an average across 1,000 simulated races rather than the specific (lighter) safety car conditions of the real one.
 
 
 ### Baku 2024
 
 Oscar Piastri's race-winning strategy was a 1-stop, medium-hard, with stints of 15 and 36 laps (actual race time: 92.97 minutes). Simulating this against the Baku strategy grid:
  
-- **Ranking:** the real strategy placed 10th, behind several strategies favoring a longer medium stint (the model's top pick used a 29-lap medium stint versus Piastri's 15). This gap is explainable: Piastri's own post-race comments describe pushing hard and overheating his tires early in traffic to build a lead, prompting an earlier stop than pure tire-age degradation would suggest, a driving and race-context factor the model has no way to represent, since it only knows tire age, not how hard a specific driver pushed or whether they were in another car's dirty air.
-- **Absolute time:** the model predicted a mean finishing time of 94.91 minutes, about 1.9 minutes slower than the actual 92.97 minutes, a similar-sized gap to Bahrain's, for the same underlying reasons.
+- **Ranking:** the real strategy placed 10th, behind several strategies favoring a longer medium stint (the model's top pick used a 29-lap medium stint versus Piastri's 15). This gap is explainable by Piastri's own post-race comments, describing pushing hard and overheating his tires early in traffic to build a lead, prompting an earlier stop than pure tire-age degradation would suggest, a driving and race-context factor the model has no way to represent, since it only knows tire age, not how hard a specific driver pushed.
+- **Absolute time:** the model predicted a mean finishing time of 94.89 minutes, about 1.9 minutes slower than the actual 92.97 minutes, a similar-sized gap to Bahrain's, for the same underlying reasons.
 
 
 ### Monaco 2024
@@ -124,12 +122,14 @@ f1-strategy-optimizer/
 **Resolved:** the tire degradation model originally fit lap time against tire age alone, which conflated tire wear with fuel burn-off (cars get lighter and faster as fuel depletes over a race). This showed up as a negative degradation slope for soft tires, implying tires got faster with age, which isn't physically real. This has been fixed by fitting lap time against both tire age and lap number (as a proxy for fuel load) using multiple linear regression, which separates the two effects. Both compounds now show a positive tire wear slope, as expected.
  
 **Resolved:** Baku 2024's fitted MEDIUM tire wear slope initially came out negative. Investigation traced this to several drivers starting the race on medium tires, so their `TyreLife == 1` lap coincided with `LapNumber == 1`, the opening lap of the race, which is always slower than normal racing pace due to the standing start and bunched field through the first corner. This anchored the low end of the tire-age fit at an artificially slow point. Cross-referencing against Baku's actual caution periods (which occurred late in the race, around laps 36 and 49-51) ruled out safety car restart contamination as an alternative cause. Fixed by excluding lap 1 from the cleaned dataset across all races, not just Baku, since the same distortion could affect any race, just with less impact where compound sample sizes are larger. After the fix, Baku's MEDIUM slope became positive (0.026 s/lap), while Bahrain and Monaco's fitted values were essentially unchanged, consistent with the distortion being too small to matter in their larger samples.
+
+**(Modestly) Resolved:** the safety car model originally charged the full pit stop time loss regardless of whether a safety car happened to be active, missing the real strategic advantage of pitting during a caution, when the whole field is running slowly and the relative cost of stopping is much lower. A discount (65% reduction to pit loss when a safety car is active at the moment of the stop) was added to `optimize_strategy.py`. The effect on results was small: Bahrain's top strategy mean shifted from 94.24 to 94.23 minutes, Baku's from 94.91 to 94.89, with rankings essentially unchanged. This makes sense given how the model is structured: strategies are still fixed-lap plans decided in advance (e.g. "pit on lap 18"), so the discount only applies in the case a safety car happens to be active on that exact predetermined lap. The real strategic value teams capture comes from *reacting* to a safety car once it appears, pitting immediately regardless of the original plan, not from a fixed plan getting lucky. Modeling that properly would need reactive strategy logic (a strategy defined as a rule, not just fixed lap numbers), which is a larger feature than this fix and remains unimplemented.
  
 ### Remaining limitations:
 
-- The safety car model uses a flat per-lap probability and fixed duration, tuned to a rough historical estimate rather than track-specific data. It doesn't yet capture real strategic effects, like the reduced cost of pitting during a safety car period.
 - Baku 2024's model has no SOFT compound available. This was investigated and confirmed to be a real feature of the race, not a data or cleaning bug: soft tires were used for only 6 laps all race, all of them during yellow flag, VSC, or safety car conditions, with no valid green-flag lap times recorded on them at all. Baku strategies generated by this model are therefore restricted to MEDIUM and HARD only, matching what teams actually had viable that race.
 - The model doesn't account for driver-specific pace, traffic, or track position effects, all laps of a given compound and age are treated as interchangeable regardless of who's driving.
+- - Strategies are fixed-lap plans decided in advance, with no reactive logic to adjust pit timing in response to an actual safety car appearing mid-race, which is how real teams capture most of the strategic value of a caution period (see above).
 
 
 ## Author
